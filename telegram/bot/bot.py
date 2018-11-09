@@ -18,9 +18,7 @@ class Bot:
         data = self._query.make_query(url, data).json()
         if not data.get('result'):
             raise BadRequestError(data)
-        messages = data['result'][self._message_offset:]
-        self._message_offset = len(data['result'])
-        return messages
+        return data['result']
 
     def get_last_message(self):
         messages = self.get_unread_messages()
@@ -28,7 +26,10 @@ class Bot:
 
     def get_unread_messages(self, data=None):
         url = self._generate_url('get_unread_messages', token=self._token)
-        return self._make_query_get_key(url, data)
+        data = self._make_query_get_key(url, data)
+        messages = data[self._message_offset:]
+        self._message_offset = len(data)
+        return messages
 
     def send_message(self, chat_id, text):
         url = self._generate_url('send_message', token=self._token,  chat_id=chat_id, text=text)
